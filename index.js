@@ -20,6 +20,29 @@ const client = new MongoClient(process.env.MONGODB_URI, {
 
 async function run() {
   try {
+    const database = client.db("athleticHubDB");
+    const eventsCollection = database.collection("events");
+
+    // **events**
+    // get events data
+    app.get("/events", async (req, res) => {
+      // search functionality
+      const { searchParams } = req.query;
+      let query = {}; // must use let because it will be change
+      if (searchParams) {
+        query = { eventName: { $regex: searchParams, $options: "i" } };
+      }
+      const result = await eventsCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // post events
+    app.post("/events", async (req, res) => {
+      const newEvents = req.body;
+      const result = await eventsCollection.insertOne(newEvents);
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
