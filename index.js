@@ -1,5 +1,5 @@
 const express = require("express");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const cors = require("cors");
 require("dotenv").config();
 const app = express();
@@ -24,15 +24,26 @@ async function run() {
     const eventsCollection = database.collection("events");
 
     // **events**
-    // get events data
+    // get events data using search params or email and all
     app.get("/events", async (req, res) => {
       // search functionality
-      const { searchParams } = req.query;
-      let query = {}; // must use let because it will be change
+      const { searchParams, email } = req.query;
+      let query = {};
       if (searchParams) {
-        query = { eventName: { $regex: searchParams, $options: "i" } };
+        query.eventName = { $regex: searchParams, $options: "i" };
+      }
+      if (email) {
+        query.creatorEmail = email;
       }
       const result = await eventsCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // get single events data
+    app.get("/events/:id", async (req, res) => {
+      const { id } = req.params;
+      const find = { _id: new ObjectId(id) };
+      const result = await eventsCollection.findOne(find);
       res.send(result);
     });
 
@@ -40,6 +51,29 @@ async function run() {
     app.post("/events", async (req, res) => {
       const newEvents = req.body;
       const result = await eventsCollection.insertOne(newEvents);
+      res.send(result);
+    });
+
+    // update event data using put method using id
+    app.put("/events/:id", async (req, res) => {
+      const { id } = req.params;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedEvent = req.body;
+      const updateDoc = { $set: updatedEvent };
+      const result = await eventsCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    // delete events using id
+    app.delete("/events/:id", async (req, res) => {
+      const { id } = req.params;
+      const filter = { _id: new ObjectId(id) };
+      const result = await eventsCollection.deleteOne(filter);
       res.send(result);
     });
 
