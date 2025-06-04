@@ -22,8 +22,21 @@ async function run() {
   try {
     const database = client.db("athleticHubDB");
     const eventsCollection = database.collection("events");
+    const bookingsCollection = database.collection("bookings");
 
     // **events**
+    // featured events
+    app.get("/events/featured", async (req, res) => {
+      // Only show events with eventDate today or in the future, sorted by eventDate ascending (soonest first)
+      const today = new Date().toISOString().split("T")[0];
+      const featuredEvents = await eventsCollection
+        .find({ eventDate: { $gte: today } })
+        .sort({ eventDate: 1 })
+        .limit(6)
+        .toArray();
+      res.send(featuredEvents);
+    });
+
     // get events data using search params or email and all
     app.get("/events", async (req, res) => {
       // search functionality search by event name or location
@@ -77,6 +90,43 @@ async function run() {
       const { id } = req.params;
       const filter = { _id: new ObjectId(id) };
       const result = await eventsCollection.deleteOne(filter);
+      res.send(result);
+    });
+
+    // **Bookings**
+    // get bookings data
+    app.get("/bookings", async (req, res) => {
+      // search functionality search by event name or location
+      const { email } = req.query;
+      let query = {};
+      if (email) {
+        query.user_email = email;
+      }
+      const result = await bookingsCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // get single bookings data by id
+    app.get("/bookings/:id", async (req, res) => {
+      const { id } = req.params;
+      const find = { _id: new ObjectId(id) };
+      const result = await bookingsCollection.findOne(find);
+      res.send(result);
+    });
+
+    // post bookings data new booking
+    app.post("/bookings", async (req, res) => {
+      const bookingData = req.body;
+      // save to db in bookings data
+      const result = await bookingsCollection.insertOne(bookingData);
+      res.send(result);
+    });
+
+    // delete bookings using id
+    app.delete("/bookings/:id", async (req, res) => {
+      const { id } = req.params;
+      const filter = { _id: new ObjectId(id) };
+      const result = await bookingsCollection.deleteOne(filter);
       res.send(result);
     });
 
