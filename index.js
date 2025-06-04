@@ -26,11 +26,14 @@ async function run() {
     // **events**
     // get events data using search params or email and all
     app.get("/events", async (req, res) => {
-      // search functionality
+      // search functionality search by event name or location
       const { searchParams, email } = req.query;
       let query = {};
       if (searchParams) {
-        query.eventName = { $regex: searchParams, $options: "i" };
+        query.$or = [
+          { eventName: { $regex: searchParams, $options: "i" } },
+          { location: { $regex: searchParams, $options: "i" } },
+        ];
       }
       if (email) {
         query.creatorEmail = email;
