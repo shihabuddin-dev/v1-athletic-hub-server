@@ -9,6 +9,7 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// new version
 // mongoDB
 const client = new MongoClient(process.env.MONGODB_URI, {
   serverApi: {
