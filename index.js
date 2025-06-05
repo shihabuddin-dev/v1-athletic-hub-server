@@ -117,6 +117,17 @@ async function run() {
     // post bookings data new booking
     app.post("/bookings", async (req, res) => {
       const bookingData = req.body;
+      const { user_email, eventName } = bookingData;
+
+      // Check if the user already booked this event
+      const alreadyBooked = await bookingsCollection.findOne({
+        user_email,
+        eventName,
+      });
+
+      if (alreadyBooked) {
+        return res.status(400).send({ message: "Already booked this event." });
+      }
       // save to db in bookings data
       const result = await bookingsCollection.insertOne(bookingData);
       res.send(result);
