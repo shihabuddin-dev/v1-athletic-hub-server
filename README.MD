@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Athletic Hub Server - Version 1
 
 Welcome to the **Athletic Hub Server (v1)**! This is the backend server powering the Athletic Hub platform, designed to connect athletes, coaches, and sports enthusiasts in a seamless and scalable way.
@@ -47,3 +48,6 @@ This project is licensed under the MIT License.
 ---
 
 *Athletic Hub Server v1 - Empowering the sports community, one connection at a time.*
+=======
+## Athletic Hub Server Side Version 1
+>>>>>>> e62844e057f63466a13764eeef487810e08e30d4
